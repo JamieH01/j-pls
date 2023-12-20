@@ -3,6 +3,8 @@ name = "j-pls"
 version = "0.1.0"
 edition = "2021"
 readme = "readme.md"
+description = "quick n' dirty non-global aliases/scripts"
+liscense = "Apache 2.0"
 
 [[bin]]
 name="pls"
