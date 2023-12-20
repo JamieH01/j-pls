@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2021"
 readme = "readme.md"
 description = "quick n' dirty non-global aliases/scripts"
-license = "Apache 2.0"
+license = "Apache-2.0"
+keywords = ["cli", "devtool", "tool"]
+categories = ["command-line-utilities"]
 
 [[bin]]
 name="pls"
