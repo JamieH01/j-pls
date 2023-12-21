@@ -20,3 +20,13 @@ To use a rule, call it with `pls`!
 ```bash
 pls build
 ```
+
+## Todo 
+Current features being worked on, in order of priority.
+- [ ] multiline commands
+- [ ] global rules
+- [ ] arguments 
+- [ ] subcommands
+- [ ] confirm prompts
+- more advanced scripting..(?)
+
