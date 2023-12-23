@@ -22,7 +22,6 @@ mod cmd;
 use cmd::*;
 
 fn main() {
-
     let res = run().map(|mut p| p.wait());
     match res {
         Ok(Ok(s)) if s.success() => {},

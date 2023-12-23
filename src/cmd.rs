@@ -1,26 +1,33 @@
 use std::{fmt::Display, io, process::{Child, Command}, fs, env};
 
-use crate::parse::{parse_pls, ParserError};
+use owned_chars::OwnedChars;
+
+use crate::parse::{ParserError, rule1line};
 
 pub struct Rule {
-    front: String,
-    back: String,
+    pub front: String,
+    pub back: String,
 }
 impl Rule {
     pub fn run(&self) -> Result<Child, io::Error> {
     Command::new("bash")
             .arg("-c")
-            .arg(self.back)
+            .arg(&self.back)
             .spawn()
     }
 }
 
 pub fn run() -> Result<Child, RunError> {
     let str = fs::read_to_string("rules.pls").map_err(|_| RunError::MissingRuleFile("rules.pls".into()))?;
+    let mut buf = OwnedChars::from_string(str.clone()).peekable();
     let cmd = env::args().nth(1).ok_or(RunError::NoRule)?;
     
-    for cmd in parse_pls(str) {
-         
+    for line in str.lines() {
+        match rule1line(line) {
+            Ok(rule) if rule.front == cmd => return Ok(rule.run()?),
+            Ok(_) => {},
+            Err(e) => return Err(e.into()),
+        }
     }
 
     Err(RunError::UnknownRule(cmd))
@@ -51,5 +58,11 @@ impl Display for RunError {
 impl From<io::Error> for RunError {
     fn from(value: io::Error) -> Self {
         Self::Io(value)
+    }
+}
+
+impl From<ParserError> for RunError {
+    fn from(value: ParserError) -> Self {
+        Self::ParserError(value)
     }
 }
