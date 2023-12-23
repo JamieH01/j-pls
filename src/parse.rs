@@ -1,7 +1,5 @@
 use std::{str::{Chars, Lines}, fmt::Display, iter::Peekable, error::Error, io::Write};
 
-use owned_chars::OwnedChars;
-
 use crate::cmd::{Rule, RunError};
 
 pub fn rule1line(str: &str) -> Result<Rule, ParserError> {
@@ -29,6 +27,19 @@ pub fn rulemultiline(lines: &mut Peekable<Lines>) -> Result<Rule, ParserError> {
     Ok(rule)
 }
 
+pub fn clear_between(str: String, front: char, back: char) -> String {
+    let mut out = String::with_capacity(str.len());
+    let mut push = true;
+
+    for c in str.chars() {
+        if c == front { push = false } 
+        if c == back { push = true } 
+        if push { out.push(c) }
+
+    }
+
+    out
+}
 
 #[derive(Debug, Clone)]
 pub enum ParserError {

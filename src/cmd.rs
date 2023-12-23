@@ -1,8 +1,6 @@
 use std::{fmt::Display, io, process::{Child, Command}, fs, env};
 
-use owned_chars::OwnedChars;
-
-use crate::parse::{ParserError, rule1line, rulemultiline};
+use crate::parse::{ParserError, rule1line, rulemultiline, clear_between};
 
 pub struct Rule {
     pub front: String,
@@ -18,8 +16,8 @@ impl Rule {
 }
 
 pub fn run() -> Result<Child, RunError> {
-    let str = fs::read_to_string("rules.pls").map_err(|_| RunError::MissingRuleFile("rules.pls".into()))?;
-    let mut buf = OwnedChars::from_string(str.clone()).peekable();
+    let mut str = fs::read_to_string("rules.pls").map_err(|_| RunError::MissingRuleFile("rules.pls".into()))?;
+    str = clear_between(str, '#', '\n');
     let cmd = env::args().nth(1).ok_or(RunError::NoRule)?;
     let mut iter = str.lines().peekable();
     

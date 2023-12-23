@@ -13,8 +13,9 @@ cargo install j-pls
 `pls` looks for a `rules.pls` file to pull rules from. Rule syntax looks like this:
 ```
 build: cargo build --release 
-run: cargo run
+rue: cargo run
 
+# install binary locally
 install-local: 
     cargo build 
     cargo install --path . --force
