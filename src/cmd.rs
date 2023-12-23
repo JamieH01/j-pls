@@ -2,7 +2,7 @@ use std::{fmt::Display, io, process::{Child, Command}, fs, env};
 
 use owned_chars::OwnedChars;
 
-use crate::parse::{ParserError, rule1line};
+use crate::parse::{ParserError, rule1line, rulemultiline};
 
 pub struct Rule {
     pub front: String,
@@ -21,9 +21,10 @@ pub fn run() -> Result<Child, RunError> {
     let str = fs::read_to_string("rules.pls").map_err(|_| RunError::MissingRuleFile("rules.pls".into()))?;
     let mut buf = OwnedChars::from_string(str.clone()).peekable();
     let cmd = env::args().nth(1).ok_or(RunError::NoRule)?;
+    let mut iter = str.lines().peekable();
     
-    for line in str.lines() {
-        match rule1line(line) {
+    while iter.peek().is_some() {
+        match rulemultiline(&mut iter) {
             Ok(rule) if rule.front == cmd => return Ok(rule.run()?),
             Ok(_) => {},
             Err(e) => return Err(e.into()),
