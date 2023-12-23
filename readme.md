@@ -27,10 +27,23 @@ To use a rule, call it with `pls`!
 pls build
 ```
 
+## Configuration
+`pls` looks in `$XDG_CONFIG/pls` for configuration files.
+```
+# file: $XDG_CONFIG/pls/config.pls
+# these are available settings with their defaults
+
+# where pls will look for local rules, relative to cwd
+look: rules.pls
+
+# where pls will look for global rules, relative to $XDG_CONFIG/pls/ 
+global: global.pls
+```
+
 ## Todo 
 Current features being worked on, in order of priority.
 - [x] multiline commands
-- [ ] global rules
+- [x] global rules
 - [ ] arguments 
 - [ ] subcommands
 - [ ] confirm prompts

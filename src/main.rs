@@ -1,25 +1,12 @@
-/*
-orders.pls
-
-#normal
-build: cargo build
-build_then_run: (
-    cargo build
-    ./target/debug/pls
-)
-
-run: cargo run
-| release: cargo run --release
-
-*/
 use std::process::{Command, Child, ExitStatus};
 use std::{fs, env};
 
 mod parse;
-use parse::*;
 
 mod cmd;
 use cmd::*;
+
+mod config;
 
 fn main() {
     match env::args().nth(1) {
