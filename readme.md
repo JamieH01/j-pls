@@ -21,6 +21,7 @@ install-local:
     cargo install --path . --force
 ```
 
+Run `pls` with no arguments to view available rules.
 To use a rule, call it with `pls`!
 ```bash
 pls build

@@ -15,10 +15,10 @@ impl Rule {
     }
 }
 
-pub fn run() -> Result<Child, RunError> {
-    let mut str = fs::read_to_string("rules.pls").map_err(|_| RunError::MissingRuleFile("rules.pls".into()))?;
-    str = clear_between(str, '#', '\n');
-    let cmd = env::args().nth(1).ok_or(RunError::NoRule)?;
+pub fn run(cmd: &str) -> Result<Child, RunError> {
+    let mut str = fs::read_to_string("rules.pls")
+        .map_err(|_| RunError::MissingRuleFile("rules.pls".into()))?;
+    str = clear_between(str, '#', '\n'); //get rid of comments (add escape)
     let mut iter = str.lines().peekable();
     
     while iter.peek().is_some() {
@@ -29,7 +29,24 @@ pub fn run() -> Result<Child, RunError> {
         }
     }
 
-    Err(RunError::UnknownRule(cmd))
+    Err(RunError::UnknownRule(cmd.to_string()))
+}
+
+pub fn get_rules() -> Result<Vec<Rule>, RunError> {
+    let mut str = fs::read_to_string("rules.pls")
+        .map_err(|_| RunError::MissingRuleFile("rules.pls".into()))?;
+    str = clear_between(str, '#', '\n'); //get rid of comments (add escape)
+    let mut iter = str.lines().peekable();
+    let mut out = vec![];
+    
+    while iter.peek().is_some() {
+        match rulemultiline(&mut iter) {
+            Ok(rule) => out.push(rule),
+            Err(e) => return Err(e.into()),
+        }
+    }
+
+    Ok(out)
 }
 
 #[derive(Debug)]

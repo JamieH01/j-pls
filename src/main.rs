@@ -22,7 +22,26 @@ mod cmd;
 use cmd::*;
 
 fn main() {
-    let res = run().map(|mut p| p.wait());
+    match env::args().nth(1) {
+        None => {
+            let cmds = match get_rules() {
+                Ok(c) => c,
+                Err(e) => {println!("oops! {e}"); return;},
+            };
+
+            println!("available commands:");
+            for rule in cmds {
+                println!("{}", rule.front); 
+            }
+        },
+        Some(cmd) => {
+            let res = run(&cmd).map(|mut p| p.wait());
+            handle(res);
+        },
+    }
+}
+
+fn handle(res: Result<Result<ExitStatus, std::io::Error>, RunError>) {
     match res {
         Ok(Ok(s)) if s.success() => {},
         Ok(Ok(s)) => match s.code() {
@@ -33,3 +52,4 @@ fn main() {
         Err(e) => println!("oops! {e}"),
     }
 }
+
