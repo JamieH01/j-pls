@@ -14,6 +14,10 @@ cargo install j-pls
 ```
 build: cargo build --release 
 run: cargo run
+
+install-local: 
+    cargo build 
+    cargo install --path . --force
 ```
 
 To use a rule, call it with `pls`!
@@ -23,7 +27,7 @@ pls build
 
 ## Todo 
 Current features being worked on, in order of priority.
-- [ ] multiline commands
+- [x] multiline commands
 - [ ] global rules
 - [ ] arguments 
 - [ ] subcommands
