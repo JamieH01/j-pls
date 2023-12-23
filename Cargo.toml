@@ -1,6 +1,6 @@
 [package]
 name = "j-pls"
-version = "0.1.3"
+version = "0.2.0"
 edition = "2021"
 readme = "readme.md"
 description = "quick n' dirty non-global aliases/scripts"
