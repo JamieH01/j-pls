@@ -5,6 +5,7 @@ mod parse;
 
 mod cmd;
 use cmd::*;
+use colored::Colorize;
 
 mod config;
 
@@ -16,9 +17,13 @@ fn main() {
                 Err(e) => {println!("oops! {e}"); return;},
             };
 
-            println!("available commands:");
+            println!("{}", "available commands:".blue());
             for rule in cmds {
-                println!("{}", rule.front); 
+                if rule.global {
+                    println!("{}", rule.front.red()); 
+                } else {
+                    println!("{}", rule.front.green()); 
+                }
             }
         },
         Some(cmd) => {

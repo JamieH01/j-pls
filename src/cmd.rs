@@ -5,6 +5,7 @@ use crate::{parse::{ParserError, rule1line, rulemultiline, clear_between}, confi
 pub struct Rule {
     pub front: String,
     pub back: String,
+    pub global: bool,
 }
 impl Rule {
     pub fn run(&self) -> Result<Child, io::Error> {
@@ -28,22 +29,22 @@ pub fn get_rules() -> Result<Vec<Rule>, RunError> {
     let mut out = vec![];
 
     if let Ok(str) = fs::read_to_string(CONFIG.look()) { 
-        out.append(&mut parse_file(str)?);
+        out.append(&mut parse_file(str, false)?);
     }
 
     if let Ok(str) = fs::read_to_string(CONFIG.global()) { 
-        out.append(&mut parse_file(str)?);
+        out.append(&mut parse_file(str, true)?);
     }
 
     Ok(out)
 }
 
-fn parse_file(mut str: String) -> Result<Vec<Rule>, RunError> {
+fn parse_file(mut str: String, global: bool) -> Result<Vec<Rule>, RunError> {
     str = clear_between(str, '#', '\n');
     let mut iter = str.lines().peekable();
     let mut out = vec![];
     while iter.peek().is_some() {
-        match rulemultiline(&mut iter) {
+        match rulemultiline(&mut iter, global) {
             Ok(rule) => out.push(rule),
             Err(e) => return Err(e.into()),
         }

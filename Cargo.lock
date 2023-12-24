@@ -20,7 +20,7 @@ checksum = "f0b283db04b454eadd9c23f31d977d1d8a111d403ae1c0d4f71836495413b83f"
 
 [[package]]
 name = "j-pls"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "colored",
  "global-static",
