@@ -35,8 +35,8 @@ impl Config {
         let mut global = "global.pls".into(); //default
         for line in settings.lines() {
             find_settings!((line, back): 
-                "look" => { look = back.into() }
-                "global" => { global = back.into() }
+                "look" => { look = back.trim().into() }
+                "global" => { global = back.trim().into() }
             );
         }
          
