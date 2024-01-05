@@ -1,22 +1,27 @@
-use std::{fmt::Display, io, process::{Child, Command}, fs, env};
+use std::{fmt::Display, io, process::{Command, ExitStatus}, fs, os::unix::process::ExitStatusExt};
 
-use crate::{parse::{ParserError, rule1line, rulemultiline, clear_between}, config::CONFIG};
+use crate::{parse::{ParserError, rulemultiline, clear_between}, config::CONFIG};
 
 pub struct Rule {
     pub front: String,
-    pub back: String,
+    pub back: Vec<String>,
     pub global: bool,
 }
 impl Rule {
-    pub fn run(&self) -> Result<Child, io::Error> {
-    Command::new("bash")
+    pub fn run(&self) -> Result<ExitStatus, io::Error> {
+    for cmd in &self.back {
+        let res = Command::new("bash")
             .arg("-c")
-            .arg(&self.back)
-            .spawn()
+            .arg(cmd)
+            .status()?;
+        if !res.success() { return Ok(res) }
+    }
+
+    Ok(ExitStatus::from_raw(0))
     }
 }
 
-pub fn run(cmd: &str) -> Result<Child, RunError> {
+pub fn run(cmd: &str) -> Result<ExitStatus, RunError> {
 
     for rule in get_rules()? {
         if rule.front == cmd {return Ok(rule.run()?)}

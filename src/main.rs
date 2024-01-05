@@ -1,5 +1,4 @@
-use std::process::{Command, Child, ExitStatus};
-use std::{fs, env};
+use std::env;
 
 mod parse;
 
@@ -27,21 +26,14 @@ fn main() {
             }
         },
         Some(cmd) => {
-            let res = run(&cmd).map(|mut p| p.wait());
-            handle(res);
+            let res = run(&cmd);
+            match res {
+                Ok(s) if s.success() => {},
+                Ok(s) => println!("process exited with code: {:?}", s.code()),
+                Err(e) => println!("oops! {e}"),
+            }
         },
     }
 }
 
-fn handle(res: Result<Result<ExitStatus, std::io::Error>, RunError>) {
-    match res {
-        Ok(Ok(s)) if s.success() => {},
-        Ok(Ok(s)) => match s.code() {
-            Some(i) => println!("process exited with code: {i}"),
-            None => println!("process terminated"),
-        },
-        Ok(Err(e)) => println!("oops! {e}"),
-        Err(e) => println!("oops! {e}"),
-    }
-}
 
