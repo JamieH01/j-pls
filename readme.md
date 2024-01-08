@@ -19,6 +19,11 @@ run: cargo run
 install-local: 
     cargo build 
     cargo install --path . --force
+
+# say hi!
+#arguments will be enviroment variables in the given script
+greet [name]:
+    echo hello $name!
 ```
 
 Run `pls` with no arguments to view available rules.
@@ -44,7 +49,7 @@ global: global.pls
 Current features being worked on, in order of priority.
 - [x] multiline commands
 - [x] global rules
-- [ ] arguments 
+- [x] arguments 
 - [ ] subcommands
 - [ ] confirm prompts
 - more advanced scripting..(?)

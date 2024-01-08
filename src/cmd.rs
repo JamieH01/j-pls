@@ -1,19 +1,25 @@
-use std::{fmt::Display, io, process::{Command, ExitStatus}, fs, os::unix::process::ExitStatusExt};
+use std::{fmt::Display, io, process::{Command, ExitStatus}, fs, os::unix::process::ExitStatusExt, cmp::Ordering};
 
 use crate::{parse::{ParserError, rulemultiline, clear_between}, config::CONFIG};
 
+#[derive(Debug)]
 pub struct Rule {
     pub front: String,
     pub back: Vec<String>,
+    pub args: Vec<String>,
     pub global: bool,
 }
 impl Rule {
-    pub fn run(&self) -> Result<ExitStatus, io::Error> {
+    pub fn run(&self, args: Vec<String>) -> Result<ExitStatus, io::Error> {
     for cmd in &self.back {
-        let res = Command::new("bash")
-            .arg("-c")
-            .arg(cmd)
-            .status()?;
+        let mut proc = Command::new("bash");
+        proc.arg("-c").arg(cmd);
+
+        for (var, val) in self.args.iter().zip(args.iter()) {
+            proc.env(var, val);
+        }
+
+        let res = proc.status()?;
         if !res.success() { return Ok(res) }
     }
 
@@ -21,10 +27,20 @@ impl Rule {
     }
 }
 
-pub fn run(cmd: &str) -> Result<ExitStatus, RunError> {
+
+
+pub fn run(cmd: &str, args: Vec<String>) -> Result<ExitStatus, RunError> {
 
     for rule in get_rules()? {
-        if rule.front == cmd {return Ok(rule.run()?)}
+        if rule.front == cmd {
+            match rule.args.len().cmp(&args.len()) {
+                Ordering::Less => return Err(RunError::TooManyArgs),
+                Ordering::Greater => return Err(RunError::NotEnoughArgs),
+                _ => {},
+            }
+
+            return Ok(rule.run(args)?)
+        }
     }
 
     Err(RunError::UnknownRule(cmd.to_string()))
@@ -64,6 +80,8 @@ pub enum RunError {
     NoRule,
     MissingRuleFile(String),
     ParserError(ParserError),
+    TooManyArgs,
+    NotEnoughArgs,
 }
 
 impl std::error::Error for RunError {}
@@ -75,6 +93,8 @@ impl Display for RunError {
             Self::NoRule => write!(f, "missing rule!"),
             Self::MissingRuleFile(path) => write!(f, "missing rule file (looking for {path:?}"),
             Self::ParserError(err) => write!(f, "{err}"),
+            Self::TooManyArgs => write!(f, "too many args provided"),
+            Self::NotEnoughArgs => write!(f, "not enough args provided"),
         }
     }
 }
