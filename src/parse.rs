@@ -14,7 +14,6 @@ pub fn rule1line(str: &str, global: bool) -> Result<Rule, ParserError> {
     Ok(Rule { 
         front, 
         back: vec![back.to_owned()], 
-        global, 
         args 
     })
 }

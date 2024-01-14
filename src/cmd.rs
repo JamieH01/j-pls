@@ -2,12 +2,20 @@ use std::{fmt::Display, io, process::{Command, ExitStatus}, fs, os::unix::proces
 
 use crate::{parse::{ParserError, rulemultiline, clear_between}, config::CONFIG};
 
+//refactor rule logic into this type
 #[derive(Debug)]
+pub struct Ruleset {
+    pub local_rules: Vec<Rule>,
+    pub global_rules: Vec<Rule>,
+    pub do_cmd: Option<Rule>,
+}
+
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Rule {
     pub front: String,
     pub back: Vec<String>,
     pub args: Vec<String>,
-    pub global: bool,
 }
 impl Rule {
     pub fn run(&self, args: Vec<String>) -> Result<ExitStatus, io::Error> {
@@ -29,9 +37,22 @@ impl Rule {
 
 
 
+//TODO: refactor use [Ruleset]
 pub fn run(cmd: &str, args: Vec<String>) -> Result<ExitStatus, RunError> {
+    let set = get_rules()?;
 
-    for rule in get_rules()? {
+    for rule in set.local_rules {
+        if rule.front == cmd {
+            match rule.args.len().cmp(&args.len()) {
+                Ordering::Less => return Err(RunError::TooManyArgs),
+                Ordering::Greater => return Err(RunError::NotEnoughArgs),
+                _ => {},
+            }
+
+            return Ok(rule.run(args)?)
+        }
+    }
+    for rule in set.global_rules {
         if rule.front == cmd {
             match rule.args.len().cmp(&args.len()) {
                 Ordering::Less => return Err(RunError::TooManyArgs),
@@ -46,27 +67,47 @@ pub fn run(cmd: &str, args: Vec<String>) -> Result<ExitStatus, RunError> {
     Err(RunError::UnknownRule(cmd.to_string()))
 }
 
-pub fn get_rules() -> Result<Vec<Rule>, RunError> {
-    let mut out = vec![];
+pub fn get_rules() -> Result<Ruleset, RunError> {
+    let mut rules = Ruleset { local_rules: vec![], global_rules: vec![], do_cmd: None };
+
+
 
     if let Ok(str) = fs::read_to_string(CONFIG.look()) { 
-        out.append(&mut parse_file(str, false)?);
+        rules.local_rules.append(&mut parse_file(str, false)?);
     }
 
     if let Ok(str) = fs::read_to_string(CONFIG.global()) { 
-        out.append(&mut parse_file(str, true)?);
+        rules.global_rules.append(&mut parse_file(str, true)?);
     }
 
-    Ok(out)
+    if let Some((do_cmd, i)) = find(&rules.local_rules, |r| {r.front == "do"}) {
+        rules.do_cmd = Some(do_cmd.clone()); 
+        rules.local_rules.remove(i);
+    }
+
+    Ok(rules)
 }
 
+fn find<T>(vec: &Vec<T>, pred: impl Fn(&T)->bool) -> Option<(&T, usize)> {
+    for (i, e) in vec.iter().enumerate() {
+        if pred(e) == true { return Some((e, i)) };
+    }
+    None
+}
+
+//idky this returns a run error but im too sick to care rn
 fn parse_file(mut str: String, global: bool) -> Result<Vec<Rule>, RunError> {
     str = clear_between(str, '#', '\n');
     let mut iter = str.lines().peekable();
     let mut out = vec![];
     while iter.peek().is_some() {
         match rulemultiline(&mut iter, global) {
-            Ok(rule) => out.push(rule),
+            Ok(rule) => {
+                if find(&out, |r: &Rule| {r.front == rule.front}).is_some() {
+                    return Err(RunError::DuplicateRule(rule.front))
+                }
+                out.push(rule)
+            },
             Err(e) => return Err(e.into()),
         }
     }
@@ -78,6 +119,7 @@ pub enum RunError {
     UnknownRule(String), 
     Io(io::Error),
     NoRule,
+    DuplicateRule(String),
     MissingRuleFile(String),
     ParserError(ParserError),
     TooManyArgs,
@@ -95,6 +137,7 @@ impl Display for RunError {
             Self::ParserError(err) => write!(f, "{err}"),
             Self::TooManyArgs => write!(f, "too many args provided"),
             Self::NotEnoughArgs => write!(f, "not enough args provided"),
+            Self::DuplicateRule(cmd) => write!(f, "multiple instances of rule {cmd:?}"),
         }
     }
 }

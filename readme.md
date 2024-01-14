@@ -9,7 +9,7 @@ remember that pls is not finished and has many features planned!
 cargo install j-pls
 ```
 
-## Usage
+## Writing Commands  
 `pls` looks for a `rules.pls` file to pull rules from. Rule syntax looks like this:
 ```
 build: cargo build --release 
@@ -26,10 +26,17 @@ greet [name]:
     echo hello $name!
 ```
 
-Run `pls` with no arguments to view available rules.
+Run `pls` with `-l` to view available rules.
 To use a rule, call it with `pls`!
 ```bash
 pls build
+```
+
+`pls` has a special rule, called `do`, that will be called when running `pls` with no arguments.
+```bash
+do: 
+    g++ src/* -o target/main.out 
+    ./taget/main.out
 ```
 
 ## Configuration
@@ -50,7 +57,9 @@ Current features being worked on, in order of priority.
 - [x] multiline commands
 - [x] global rules
 - [x] arguments 
-- [ ] subcommands
+- [ ] variables
+- [ ] calling other rules
+- [ ] attributes
 - [ ] confirm prompts
 - more advanced scripting..(?)
 

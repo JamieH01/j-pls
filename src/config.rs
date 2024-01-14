@@ -7,9 +7,9 @@ use crate::parse::clear_between;
 pub static CONFIG: Global<Config> = Global::new(Config::new);
 
 pub struct Config {
-    xdg: xdg::BaseDirectories,
-    look: PathBuf,
-    global: PathBuf,
+    pub xdg: xdg::BaseDirectories,
+    pub look: PathBuf,
+    pub global: PathBuf,
 }
 
 macro_rules! find_settings {
