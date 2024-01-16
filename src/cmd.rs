@@ -20,12 +20,17 @@ pub struct Rule {
 impl Rule {
     pub fn run(&self, args: Vec<String>) -> Result<ExitStatus, io::Error> {
     for cmd in &self.back {
+        let cmd = cmd.trim();
+
         let mut proc = Command::new("bash");
         proc.arg("-c").arg(cmd);
+
 
         for (var, val) in self.args.iter().zip(args.iter()) {
             proc.env(var, val);
         }
+
+        if CONFIG.show_cmd { println!("{cmd}") }
 
         let res = proc.status()?;
         if !res.success() { return Ok(res) }

@@ -10,6 +10,7 @@ pub struct Config {
     pub xdg: xdg::BaseDirectories,
     pub look: PathBuf,
     pub global: PathBuf,
+    pub show_cmd: bool, 
 }
 
 macro_rules! find_settings {
@@ -33,15 +34,18 @@ impl Config {
 
         let mut look = "rules.pls".into(); //default
         let mut global = "global.pls".into(); //default
+        let mut show_cmd = false;
+
         for line in settings.lines() {
             find_settings!((line, back): 
                 "look" => { look = back.trim().into() }
                 "global" => { global = back.trim().into() }
+                "show_cmd"  => { if back.trim() == "true" { show_cmd = true } }
             );
         }
          
 
-        Config { xdg, look, global }
+        Config { xdg, look, global, show_cmd }
     }
 
     pub fn look(&self) -> &Path {

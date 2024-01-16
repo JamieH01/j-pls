@@ -50,6 +50,9 @@ look: rules.pls
 
 # where pls will look for global rules, relative to $XDG_CONFIG/pls/ 
 global: global.pls
+
+# if commands should be printed before running
+show_cmd: false
 ```
 
 ## Todo 
