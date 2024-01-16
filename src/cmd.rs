@@ -9,6 +9,23 @@ pub struct Ruleset {
     pub global_rules: Vec<Rule>,
     pub do_cmd: Option<Rule>,
 }
+impl Ruleset {
+    pub fn get(&self, name: &str) -> Option<&Rule> {
+        if self.do_cmd.as_ref().is_some_and(|_| name == "do") {
+            return self.do_cmd.as_ref()
+        }
+
+        for rule in &self.local_rules {
+            if rule.front == name { return Some(rule) }
+        }
+        
+        for rule in &self.global_rules {
+            if rule.front == name { return Some(rule) }
+        }
+
+        None
+    }
+}
 
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -38,6 +55,7 @@ impl Rule {
 
     Ok(ExitStatus::from_raw(0))
     }
+
 }
 
 

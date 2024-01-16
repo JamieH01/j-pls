@@ -26,7 +26,7 @@ greet [name]:
     echo hello $name!
 ```
 
-Run `pls` with `-l` to view available rules.
+Run `pls` with `-l` to view available rules. You can also use `-v` for more detailed info about a rule.
 To use a rule, call it with `pls`!
 ```bash
 pls build

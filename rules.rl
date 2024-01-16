@@ -9,3 +9,5 @@ install-local:
     cargo install --path . --force
 
 info: bat Cargo.toml
+
+say hi: echo "illegal"

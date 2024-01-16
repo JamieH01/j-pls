@@ -47,6 +47,22 @@ fn main() {
                 show_rules(ruleset);
             }
         }
+
+        Some(cmd) if cmd == "-v" => {
+            let check = match args.get(0) {
+                Some(v) => v,
+                None => {println!("rule not provided"); return},
+            };
+
+            let rule = match ruleset.get(check) {
+                Some(v) => v,
+                None => {println!("oops! unknown rule: {check:?}"); return},
+            };
+
+            verbose_print(rule);
+            
+        }
+
         Some(cmd) => {
             let res = run(&cmd, args);
             match res {
@@ -107,4 +123,27 @@ fn show_rules_rich(ruleset: Ruleset) {
     for rule in ruleset.global_rules {
         pretty_print!(rule, red);
     }
+}
+
+fn verbose_print(rule: &Rule) {
+    print!("{} ", rule.front.yellow().bold());
+
+    if rule.args.len() > 0 { 
+        print!("[");
+
+        for arg in &rule.args {
+            print!("{}, ", arg.purple());
+        }
+
+        //heheho i so clever
+        print!("\x08\x08]");
+    } 
+
+    print!("\n");
+
+
+    for line in &rule.back {
+        println!("{line}");
+    }
+
 }
