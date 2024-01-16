@@ -11,6 +11,7 @@ pub struct Config {
     pub look: PathBuf,
     pub global: PathBuf,
     pub show_cmd: bool, 
+    pub rich: bool,
 }
 
 macro_rules! find_settings {
@@ -35,17 +36,19 @@ impl Config {
         let mut look = "rules.pls".into(); //default
         let mut global = "global.pls".into(); //default
         let mut show_cmd = false;
+        let mut rich = true;
 
         for line in settings.lines() {
             find_settings!((line, back): 
                 "look" => { look = back.trim().into() }
                 "global" => { global = back.trim().into() }
                 "show_cmd"  => { if back.trim() == "true" { show_cmd = true } }
+                "rich"  => { if back.trim() == "true" { rich = true } }
             );
         }
          
 
-        Config { xdg, look, global, show_cmd }
+        Config { xdg, look, global, show_cmd, rich }
     }
 
     pub fn look(&self) -> &Path {

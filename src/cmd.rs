@@ -90,6 +90,7 @@ pub fn get_rules() -> Result<Ruleset, RunError> {
         rules.local_rules.remove(i);
     }
 
+
     Ok(rules)
 }
 
@@ -116,6 +117,7 @@ fn parse_file(mut str: String, global: bool) -> Result<Vec<Rule>, RunError> {
             Err(e) => return Err(e.into()),
         }
     }
+
     Ok(out)
 }
 

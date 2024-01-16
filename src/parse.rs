@@ -49,6 +49,10 @@ pub fn rulemultiline(lines: &mut Peekable<Lines>, global: bool) -> Result<Rule, 
         }
     } 
 
+    rule.back = rule.back.iter()
+        .map(|s| s.trim_matches(|c| (c as u8).is_ascii_whitespace()).to_string())
+        .filter(|s| !s.is_empty())
+        .collect();
     Ok(rule)
 }
 

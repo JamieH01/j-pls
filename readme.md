@@ -53,6 +53,9 @@ global: global.pls
 
 # if commands should be printed before running
 show_cmd: false
+
+# show extra info about rules when listing
+rich: true
 ```
 
 ## Todo 
